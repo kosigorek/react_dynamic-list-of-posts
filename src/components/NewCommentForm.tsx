@@ -13,6 +13,7 @@ export const NewCommentForm: React.FC<Props> = ({ onSubmit }) => {
   const [values, setValues] = useState<CommentData>(EMPTY_VALUES);
   const [errors, setErrors] = useState(NO_ERRORS);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -22,11 +23,13 @@ export const NewCommentForm: React.FC<Props> = ({ onSubmit }) => {
 
     setValues(current => ({ ...current, [field]: value }));
     setErrors(current => ({ ...current, [field]: false }));
+    setSubmitError(false);
   };
 
   const handleReset = () => {
     setValues(EMPTY_VALUES);
     setErrors(NO_ERRORS);
+    setSubmitError(false);
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -51,11 +54,13 @@ export const NewCommentForm: React.FC<Props> = ({ onSubmit }) => {
     }
 
     setIsSubmitting(true);
+    setSubmitError(false);
 
     try {
       await onSubmit(trimmedValues);
       setValues(current => ({ ...current, body: '' }));
     } catch {
+      setSubmitError(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -163,6 +168,15 @@ export const NewCommentForm: React.FC<Props> = ({ onSubmit }) => {
           </p>
         )}
       </div>
+
+      {submitError && (
+        <div
+          className="notification is-danger is-light"
+          data-cy="AddCommentError"
+        >
+          Unable to add a comment
+        </div>
+      )}
 
       <div className="field is-grouped">
         <div className="control">
