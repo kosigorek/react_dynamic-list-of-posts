@@ -56,7 +56,6 @@ export const NewCommentForm: React.FC<Props> = ({ onSubmit }) => {
       await onSubmit(trimmedValues);
       setValues(current => ({ ...current, body: '' }));
     } catch {
-      // при помилці дані лишаються у формі, щоб можна було повторити
     } finally {
       setIsSubmitting(false);
     }

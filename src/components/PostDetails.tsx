@@ -3,7 +3,11 @@ import { Loader } from './Loader';
 import { NewCommentForm } from './NewCommentForm';
 import { Post } from '../types/Post';
 import { Comment, CommentData } from '../types/Comment';
-import { createComment, deleteComment, getPostComments } from '../api/postComments';
+import {
+  createComment,
+  deleteComment,
+  getPostComments,
+} from '../api/postComments';
 
 type Props = {
   post: Post;
@@ -14,9 +18,12 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
+
+    setDeleteError(false);
 
     getPostComments(post.id)
       .then(loadedComments => {
@@ -47,12 +54,14 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
   };
 
   const handleDelete = async (comment: Comment) => {
+    setDeleteError(false);
     setComments(current => current.filter(({ id }) => id !== comment.id));
 
     try {
       await deleteComment(comment.id);
     } catch {
       setComments(current => [...current, comment].sort((a, b) => a.id - b.id));
+      setDeleteError(true);
     }
   };
 
@@ -113,6 +122,15 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
               </article>
             ))}
           </>
+        )}
+
+        {isLoaded && deleteError && (
+          <div
+            className="notification is-danger is-light"
+            data-cy="DeleteCommentError"
+          >
+            Unable to delete a comment
+          </div>
         )}
 
         {isLoaded && !isFormVisible && (
